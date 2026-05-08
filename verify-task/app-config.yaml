@@ -1,0 +1,7 @@
+app:
+  name: "verify-single-iceberg-aging-task"
+  runtime-mode: "BATCH"
+  submit-mode: "SINGLE"
+
+single:
+  task-path: "hdfs:///tmp/taskplugin/single-iceberg-aging-task/verify-task"

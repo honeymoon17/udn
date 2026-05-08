@@ -1,0 +1,33 @@
+task:
+  name: "verify-single-iceberg-aging-task"
+  description: "Write Iceberg aging verification result to HDFS CSV"
+  version: "1.0.0"
+
+execution:
+  runtime-mode: BATCH
+
+computation:
+  sql:
+    yaml-file: "sql/sql.yaml"
+
+spark:
+  sql:
+    shuffle-partitions: 1
+  driver:
+    memory: "1g"
+    cores: 1
+  executor:
+    memory: "1g"
+    cores: 1
+    instances: 1
+  dynamicAllocation:
+    enabled: false
+  config:
+    spark.sql.adaptive.enabled: "true"
+    spark.sql.adaptive.coalescePartitions.enabled: "true"
+    spark.sql.extensions: "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions"
+    spark.sql.catalog.iceberg_hdfs: "org.apache.iceberg.spark.SparkCatalog"
+    spark.sql.catalog.iceberg_hdfs.type: "hadoop"
+    spark.sql.catalog.iceberg_hdfs.warehouse: "hdfs:///tmp/taskplugin/single-iceberg-aging-task/warehouse"
+
+udfs: []

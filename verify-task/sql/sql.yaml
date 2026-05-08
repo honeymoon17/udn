@@ -1,0 +1,40 @@
+statements:
+  - type: "DDL"
+    sql: |
+      CREATE TEMPORARY TABLE verify_old_rows (
+        metric STRING,
+        value BIGINT
+      ) USING csv
+      OPTIONS (
+        path 'hdfs:///tmp/taskplugin/single-iceberg-aging-task/verify/old_rows',
+        header 'true'
+      )
+
+  - type: "DML"
+    sql: |
+      INSERT OVERWRITE verify_old_rows
+      SELECT 'old_rows_before_cutoff' AS metric,
+             COUNT(*) AS value
+      FROM iceberg_hdfs.demo.user_profile_source
+      WHERE event_ts < TIMESTAMP '2026-05-01 00:00:00'
+
+  - type: "DDL"
+    sql: |
+      CREATE TEMPORARY TABLE verify_remaining_rows (
+        user_id BIGINT,
+        user_name STRING,
+        event_ts STRING
+      ) USING csv
+      OPTIONS (
+        path 'hdfs:///tmp/taskplugin/single-iceberg-aging-task/verify/remaining_rows',
+        header 'true'
+      )
+
+  - type: "DML"
+    sql: |
+      INSERT OVERWRITE verify_remaining_rows
+      SELECT user_id,
+             user_name,
+             CAST(event_ts AS STRING) AS event_ts
+      FROM iceberg_hdfs.demo.user_profile_source
+      ORDER BY event_ts
