@@ -1,0 +1,15 @@
+statements:
+  # 删除旧数据，保留 cutoff 之后的数据。
+  - type: "DML"
+    sql: |
+      DELETE FROM iceberg_hdfs.demo.user_profile_source
+      WHERE event_ts < TIMESTAMP '2026-05-01 00:00:00'
+
+  # 老化快照，清理 cutoff 之前的旧快照，同时至少保留最近 10 个快照。
+  - type: "DML"
+    sql: |
+      CALL iceberg_hdfs.system.expire_snapshots(
+        table => 'demo.user_profile_source',
+        older_than => TIMESTAMP '2026-05-01 00:00:00',
+        retain_last => 10
+      )
